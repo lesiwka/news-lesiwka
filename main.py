@@ -12,7 +12,7 @@ import lesiwka
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import isoparse
-from flask import Flask, render_template
+from flask import Flask, Response, render_template
 from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
@@ -95,6 +95,8 @@ def refresh():
     tmp = CACHE.with_stem(".tmp")
     tmp.write_text(json.dumps(articles))
     tmp.replace(CACHE)
+
+    return Response()
 
 
 def validate(text):

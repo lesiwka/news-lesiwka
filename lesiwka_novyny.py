@@ -33,10 +33,13 @@ def extract(url):
         url=url,
         fields="clean_html",
     )
-    extracted_response = requests.get(
-        "https://extractorapi.com/api/v1/extractor/", params=params
-    )
-    extracted = extracted_response.json()
+    try:
+        extracted_response = requests.get(
+            "https://extractorapi.com/api/v1/extractor/", params=params
+        )
+        extracted = extracted_response.json()
+    except Exception:
+        extracted = {}
 
     if html := extracted.get("clean_html"):
         bs = BeautifulSoup(html, "html.parser")
@@ -62,19 +65,23 @@ def refresh():
         category="general",
         lang="uk",
     )
-    response_news = requests.get(
-        "https://gnews.io/api/v4/top-headlines", params=params
-    )
-    news = response_news.json()
+    try:
+        response_news = requests.get(
+            "https://gnews.io/api/v4/top-headlines", params=params
+        )
+        news = response_news.json()
+    except Exception:
+        news = {}
 
-    for article in reversed(news["articles"]):
-        if not validate(article["title"]):
-            continue
+    if new_articles := news.get("articles"):
+        for article in reversed(new_articles):
+            if not validate(article["title"]):
+                continue
 
-        if next((a for a in articles if a["url"] == article["url"]), None):
-            continue
+            if next((a for a in articles if a["url"] == article["url"]), None):
+                continue
 
-        articles.insert(0, article)
+            articles.insert(0, article)
 
     for article in articles:
         if "content_full" not in article and (

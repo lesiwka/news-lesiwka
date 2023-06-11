@@ -21,10 +21,10 @@ app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "sandstone"
 
 bootstrap = Bootstrap5(app)
 
-CACHE_FILE = Path(tempfile.gettempdir()) / "articles.json"
+CACHE = Path(tempfile.gettempdir()) / "articles.json"
 
-GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
-EXTRACTOR_API_KEY = os.getenv("EXTRACTOR_API_KEY")
+GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
+EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 
 
 def extract(url):
@@ -50,13 +50,14 @@ def extract(url):
         )
 
 
+@app.route("/refresh")
 def refresh():
     articles = []
 
-    if CACHE_FILE.exists():
-        if (time.time() - CACHE_FILE.stat().st_mtime) < 1800:
+    if CACHE.exists():
+        if (time.time() - CACHE.stat().st_mtime) < 1800:
             return
-        if data := CACHE_FILE.read_text():
+        if data := CACHE.read_text():
             articles = json.loads(data)
 
     params = dict(
@@ -91,9 +92,9 @@ def refresh():
 
     articles = articles[:100]
 
-    tmp = CACHE_FILE.with_stem(".tmp")
+    tmp = CACHE.with_stem(".tmp")
     tmp.write_text(json.dumps(articles))
-    tmp.replace(CACHE_FILE)
+    tmp.replace(CACHE)
 
 
 def validate(text):
@@ -102,9 +103,7 @@ def validate(text):
 
 @app.route("/")
 def index():
-    refresh()
-
-    articles = json.loads(CACHE_FILE.read_text())
+    articles = json.loads(CACHE.read_text()) if CACHE.exists() else []
 
     now = datetime.now(tz=timezone.utc)
     humanize.i18n.activate("uk_UA")

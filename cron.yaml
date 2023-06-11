@@ -1,0 +1,8 @@
+runtime: python311
+
+includes:
+  - env_variables.yaml
+
+handlers:
+- url: /.*
+  script: auto

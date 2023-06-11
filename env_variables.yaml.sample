@@ -1,0 +1,3 @@
+env_variables:
+  GNEWS_API_KEY: <gnews-api-key>
+  EXTRACTOR_API_KEY: <extractor-api-key>

@@ -21,6 +21,8 @@ app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "sandstone"
 
 bootstrap = Bootstrap5(app)
 
+CACHE_FILE = Path(tempfile.gettempdir()) / "articles.json"
+
 GNEWS_API_KEY = os.getenv("GNEWS_API_KEY")
 EXTRACTOR_API_KEY = os.getenv("EXTRACTOR_API_KEY")
 
@@ -45,41 +47,57 @@ def extract(url):
         )
 
 
+def refresh():
+    articles = []
+
+    if CACHE_FILE.exists():
+        if (time.time() - CACHE_FILE.stat().st_mtime) < 1800:
+            return
+        if data := CACHE_FILE.read_text():
+            articles = json.loads(data)
+
+    params = dict(
+        apikey=GNEWS_API_KEY,
+        country="ua",
+        category="general",
+        lang="uk",
+    )
+    response_news = requests.get(
+        "https://gnews.io/api/v4/top-headlines", params=params
+    )
+    news = response_news.json()
+
+    for article in reversed(news["articles"]):
+        if not validate(article["title"]):
+            continue
+
+        if next((a for a in articles if a["url"] == article["url"]), None):
+            continue
+
+        articles.insert(0, article)
+
+    for article in articles:
+        if "content_full" not in article and (
+            content_full := extract(article["url"])
+        ):
+            article["content_full"] = content_full
+
+    articles = articles[:100]
+
+    tmp = CACHE_FILE.with_stem(".tmp")
+    tmp.write_text(json.dumps(articles))
+    tmp.replace(CACHE_FILE)
+
+
 def validate(text):
     return re.search("[ґєіїҐЄІЇ]", text) or not re.search("[ёўъыэЁЎЪЫЭ]", text)
 
 
 @app.route("/")
 def index():
-    temp = Path(tempfile.gettempdir()) / "articles.json"
-    if not temp.exists() or (time.time() - temp.stat().st_mtime) > 1800:
-        params = dict(
-            apikey=GNEWS_API_KEY,
-            country="ua",
-            category="general",
-            lang="uk",
-        )
-        response_news = requests.get(
-            "https://gnews.io/api/v4/top-headlines", params=params
-        )
-        news = response_news.json()
+    refresh()
 
-        articles = []
-        for article in news["articles"]:
-            if not validate(article["title"]):
-                continue
-
-            if content_full := extract(article["url"]):
-                article["content_full"] = content_full
-
-            articles.append(article)
-
-        temp.write_text(json.dumps(articles))
-
-        if not articles:
-            articles = json.loads(temp.read_text())
-    else:
-        articles = json.loads(temp.read_text())
+    articles = json.loads(CACHE_FILE.read_text())
 
     now = datetime.now(tz=timezone.utc)
     humanize.i18n.activate("uk_UA")

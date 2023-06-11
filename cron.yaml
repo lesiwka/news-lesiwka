@@ -1,8 +1,4 @@
-runtime: python311
-
-includes:
-  - env_variables.yaml
-
-handlers:
-- url: /.*
-  script: auto
+cron:
+- description: "refresh"
+  url: /refresh
+  schedule: every 30 minutes

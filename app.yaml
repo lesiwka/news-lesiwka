@@ -4,8 +4,16 @@ includes:
   - env_variables.yaml
 
 handlers:
-- url: /static
-  static_dir: static
+  - url: /browserconfig\.xml
+    static_files: browserconfig.xml
+    upload: browserconfig\.xml
 
-- url: /.*
-  script: auto
+  - url: /favicon\.ico
+    static_files: favicon.ico
+    upload: favicon\.ico
+
+  - url: /static
+    static_dir: static
+
+  - url: /.*
+    script: auto

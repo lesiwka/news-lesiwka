@@ -1,0 +1,27 @@
+@font-face {
+    font-family: "Noto Sans";
+    src:
+        url("/static/fonts/NotoSans-Regular.woff2") format("woff2"),
+        url("/static/fonts/NotoSans-Regular.woff") format("woff"),
+        url("/static/fonts/NotoSans-Regular.ttf") format("truetype");
+}
+
+body {
+    font-family: "Noto Sans", sans-serif;
+}
+
+.image {
+    height: 20vh;
+    margin-right: 1rem;
+    max-height: 20vw;
+    object-fit: cover;
+    width: 20vw;
+}
+
+.main {
+    padding-top: 60px;
+}
+
+.w40 {
+    width: 40vw;
+}

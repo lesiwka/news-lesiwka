@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {{ bootstrap.load_css() }}
-    <title>{{ "НОВИНИ" | lesiwka }}</title>
+    <title>[{{ "НОВИНИ" | lesiwka }}]</title>
 </head>
 <body>
 <header>
@@ -21,7 +21,13 @@
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ article.id }}" aria-expanded="false" aria-controls="{{ article.id }}">
                 <img src="{{ article.image }}" alt="{{ article.title }}" style="margin-right: 1rem; height: 20vh; width: 20vw; max-height: 20vw; object-fit: cover;">
-                {{ article.title | lesiwka }}
+                <span>
+                    <b>{{ article.title | lesiwka }}</b>
+                    <span class="d-none d-md-block" style="width: 40vw;">
+                        <br>
+                        {{ article.description | lesiwka }}
+                    </span>
+                </span>
             </button>
         </h2>
         <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">

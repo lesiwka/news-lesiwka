@@ -12,7 +12,7 @@ import lesiwka
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import isoparse
-from flask import Flask, Response, render_template
+from flask import Flask, redirect, render_template
 from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
@@ -52,11 +52,12 @@ def extract(url):
 
 @app.route("/refresh")
 def refresh():
+    response = redirect("/")
     articles = []
 
     if CACHE.exists():
         if (time.time() - CACHE.stat().st_mtime) < 1800:
-            return
+            return response
         if data := CACHE.read_text():
             articles = json.loads(data)
 
@@ -96,7 +97,7 @@ def refresh():
     tmp.write_text(json.dumps(articles))
     tmp.replace(CACHE)
 
-    return Response()
+    return response
 
 
 def validate(text):

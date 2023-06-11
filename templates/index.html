@@ -10,7 +10,9 @@
 <header>
     <nav class="navbar navbar-dark fixed-top bg-dark">
         <div class="container d-flex">
-            <div class="navbar-brand font-weight-bold font-monospace">[{{ "НОВИНИ" | lesiwka }}]</div>
+            <div class="navbar-brand font-weight-bold font-monospace">
+                <a class="text-decoration-none" href="/">[{{ "НОВИНИ" | lesiwka }}]</a>
+            </div>
         </div>
     </nav>
 </header>
@@ -49,6 +51,11 @@
 {%- endfor %}
 </div>
 </main>
+<footer class="bg-success">
+    <div class="container text-center">
+        <a class="text-dark" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>
+    </div>
+</footer>
 {{ bootstrap.load_js() }}
 </body>
 </html>

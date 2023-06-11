@@ -12,7 +12,7 @@ import lesiwka
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import isoparse
-from flask import Flask, redirect, render_template
+from flask import Flask, Response, redirect, render_template, request
 from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
@@ -52,7 +52,12 @@ def extract(url):
 
 @app.route("/refresh")
 def refresh():
-    response = redirect("/")
+    response = (
+        Response()
+        if request.headers.get("X-Appengine-Cron") == "true"
+        else redirect("/")
+    )
+
     articles = []
 
     if CACHE.exists():

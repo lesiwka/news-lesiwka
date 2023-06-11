@@ -3,19 +3,46 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{{ "Лесівка Новини" | lesiwka }}</title>
+    {{ bootstrap.load_css() }}
+    <title>{{ "НОВИНИ" | lesiwka }}</title>
 </head>
 <body>
+<header>
+    <nav class="navbar navbar-dark fixed-top bg-dark">
+        <div class="container d-flex">
+            <div class="navbar-brand font-weight-bold font-monospace">[{{ "НОВИНИ" | lesiwka }}]</div>
+        </div>
+    </nav>
+</header>
+<main class="container" style="padding-top: 60px;">
+<div id="news" class="accordion accordion-flush">
 {%- for article in articles %}
-    <div>
-        <h1><a href="{{ article.url }}">{{ article.title | lesiwka }}</a></h1>
-        <img src="{{ article.image }}" alt="{{ article.title | lesiwka }}" />
-        <p>{{ article.description | lesiwka }}</p>
-        {%- for line in (article.content_full or article.content).splitlines() %}
-        <p>{{ line | lesiwka }}</p>
-        {%- endfor %}
-        <p>{{ article.publishedAt }}</p>
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ article.id }}" aria-expanded="false" aria-controls="{{ article.id }}">
+                <img src="{{ article.image }}" alt="{{ article.title }}" style="margin-right: 1rem; height: 20vh; width: 20vw; max-height: 20vw; object-fit: cover;">
+                {{ article.title | lesiwka }}
+            </button>
+        </h2>
+        <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">
+            <div class="accordion-body">
+                {%- if article.content_full %}
+                {%- for line in article.content_full.splitlines() %}
+                <p>{{ line | lesiwka }}</p>
+                {%- endfor %}
+                <p><a href="{{ article.url }}" target="_blank">{{ article.source_domain }}</a></p>
+                {%- else %}
+                {%- for line in article.content.splitlines() %}
+                <p>{{ line | lesiwka }}{% if loop.last %} <a href="{{ article.url }}" target="_blank">{{ article.source_domain }}</a>{% endif %}</p>
+                {%- endfor %}
+                {%- endif %}
+                <p class="text-muted"><i>{{ article.published | lesiwka }}</i></p>
+            </div>
+        </div>
     </div>
 {%- endfor %}
+</div>
+</main>
+{{ bootstrap.load_js() }}
 </body>
 </html>

@@ -1,18 +1,23 @@
+import hashlib
 import json
 import os
 import re
 import tempfile
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
+import humanize
 import lesiwka
 import requests
 from bs4 import BeautifulSoup
+from dateutil.parser import isoparse
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
 app.jinja_env.filters["lesiwka"] = lesiwka.encode
+app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "sandstone"
 
 bootstrap = Bootstrap5(app)
 
@@ -70,7 +75,24 @@ def index():
             articles.append(article)
 
         temp.write_text(json.dumps(articles))
+
+        if not articles:
+            articles = json.loads(temp.read_text())
     else:
         articles = json.loads(temp.read_text())
+
+    now = datetime.now(tz=timezone.utc)
+    humanize.i18n.activate("uk_UA")
+
+    for article in articles:
+        article_hash = hashlib.shake_256(article["url"].encode())
+        article["id"] = "article-" + article_hash.hexdigest(4)
+
+        article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
+
+        published_at = isoparse(article["publishedAt"])
+        article["published"] = humanize.naturaltime(published_at, when=now)
+
+        article["source_domain"] = article["source"]["url"].split("://")[-1]
 
     return render_template("index.html", articles=articles)

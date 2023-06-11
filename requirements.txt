@@ -1,0 +1,6 @@
+flask==2.3.2
+beautifulsoup4==4.12.2
+bootstrap-flask==2.2.0
+humanize==4.6.0
+lesiwka==2.1.20230423.0
+requests==2.31.0

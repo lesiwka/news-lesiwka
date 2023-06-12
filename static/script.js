@@ -8,8 +8,8 @@ document.querySelectorAll(".accordion-item").forEach((el) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    window.scroll({
-      top: 0,
-      behavior: "smooth",
-    });
+  window.scroll({
+    top: 0,
+    behavior: "smooth",
+  });
 });

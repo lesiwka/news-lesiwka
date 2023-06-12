@@ -90,13 +90,13 @@ def refresh():
 
             articles.insert(0, article)
 
+    articles = articles[:100]
+
     for article in articles:
         if "content_full" not in article and (
             content_full := extract(article["url"])
         ):
             article["content_full"] = content_full
-
-    articles = articles[:100]
 
     tmp = CACHE.with_stem(".tmp")
     tmp.write_text(json.dumps(articles))

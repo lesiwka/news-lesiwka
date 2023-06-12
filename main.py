@@ -113,6 +113,9 @@ def validate(text):
 def index():
     articles = json.loads(CACHE.read_text()) if CACHE.exists() else []
 
+    if not articles:
+        return render_template("loading.html")
+
     now = datetime.now(tz=timezone.utc)
     humanize.i18n.activate("uk_UA", path="locale")
 

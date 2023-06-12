@@ -6,8 +6,19 @@
         url("/static/fonts/NotoSans-Regular.ttf") format("truetype");
 }
 
+html {
+    position: relative;
+    min-height: 100vh;
+}
+
 body {
     font-family: "Noto Sans", sans-serif;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 .image {
@@ -19,6 +30,7 @@ body {
 }
 
 .main {
+    padding-bottom: 1.5rem;
     padding-top: 60px;
 }
 

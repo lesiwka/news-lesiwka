@@ -17,6 +17,3 @@ handlers:
 
   - url: /.*
     script: auto
-
-basic_scaling:
-  max_instances: 1

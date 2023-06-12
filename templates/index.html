@@ -54,6 +54,7 @@
         </h2>
         <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">
             <div class="accordion-body">
+                <p class="text-muted"><i>{{ article.published | lesiwka }}</i></p>
                 {%- if article.content_full %}
                 {%- for line in article.content_full.splitlines() %}
                 <p>{{ line | lesiwka }}</p>
@@ -64,7 +65,6 @@
                 <p>{{ line | lesiwka }}{% if loop.last %} <a href="{{ article.url }}" target="_blank">{{ article.source_domain }}</a>{% endif %}</p>
                 {%- endfor %}
                 {%- endif %}
-                <p class="text-muted"><i>{{ article.published | lesiwka }}</i></p>
             </div>
         </div>
     </div>

@@ -1,4 +1,5 @@
 import hashlib
+import http
 import json
 import os
 import re
@@ -12,7 +13,14 @@ import lesiwka
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import isoparse
-from flask import Flask, Response, redirect, render_template, request
+from flask import (
+    Flask,
+    Response,
+    make_response,
+    redirect,
+    render_template,
+    request,
+)
 from flask_bootstrap import Bootstrap5
 
 app = Flask(__name__)
@@ -111,7 +119,17 @@ def validate(text):
 
 @app.route("/")
 def index():
-    articles = json.loads(CACHE.read_text()) if CACHE.exists() else []
+    articles = []
+    mtime = None
+
+    if CACHE.exists():
+        mtime = int(CACHE.stat().st_mtime)
+        since = request.if_modified_since
+        if since and mtime <= since.timestamp():
+            return Response(status=http.HTTPStatus.NOT_MODIFIED)
+
+        if data := CACHE.read_text():
+            articles = json.loads(data)
 
     if not articles:
         return render_template("loading.html")
@@ -130,4 +148,7 @@ def index():
 
         article["source_domain"] = article["source"]["url"].split("://")[-1]
 
-    return render_template("index.html", articles=articles)
+    response = make_response(render_template("index.html", articles=articles))
+    response.last_modified = mtime
+
+    return response

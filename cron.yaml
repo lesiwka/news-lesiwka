@@ -1,4 +1,4 @@
 cron:
 - description: "refresh"
   url: /refresh
-  schedule: every 30 minutes
+  schedule: every 1 minutes

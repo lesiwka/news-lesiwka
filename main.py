@@ -4,12 +4,11 @@ import os
 import re
 import tempfile
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import humanize
 import lesiwka
-import pytz
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import isoparse
@@ -114,7 +113,7 @@ def validate(text):
 def index():
     articles = json.loads(CACHE.read_text()) if CACHE.exists() else []
 
-    now = datetime.utcnow().replace(tzinfo=pytz.timezone("Europe/Kiev"))
+    now = datetime.now(tz=timezone.utc)
     humanize.i18n.activate("uk_UA", path="locale")
 
     for article in articles:

@@ -68,7 +68,7 @@ def validate(text):
     return re.search("[ґєіїҐЄІЇ]", text) or not re.search("[ёўъыэЁЎЪЫЭ]", text)
 
 
-@app.route("/refresh")
+@app.route("/_refresh")
 def refresh():
     response = (
         Response()

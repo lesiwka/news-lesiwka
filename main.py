@@ -69,7 +69,7 @@ def refresh():
     articles = []
 
     if CACHE.exists():
-        if (time.time() - CACHE.stat().st_mtime) < 1800:
+        if (time.time() - CACHE.stat().st_mtime) < 900:  # 15 minutes
             return response
         if data := CACHE.read_text():
             articles = json.loads(data)

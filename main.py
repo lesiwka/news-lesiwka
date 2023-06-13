@@ -132,7 +132,13 @@ def index():
             articles = json.loads(data)
 
     if not articles:
-        return render_template("loading.html")
+        since = request.if_modified_since
+        if since and since.timestamp() == 0:
+            return Response(status=http.HTTPStatus.NOT_MODIFIED)
+
+        response = make_response(render_template("loading.html"))
+        response.last_modified = 0
+        return response
 
     now = datetime.now(tz=timezone.utc)
     humanize.i18n.activate("uk_UA", path="locale")

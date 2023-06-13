@@ -35,27 +35,37 @@ GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 
 
-def extract(url):
-    params = dict(
-        apikey=EXTRACTOR_API_KEY,
-        url=url,
-        fields="clean_html",
-    )
-    try:
-        extracted_response = requests.get(
-            "https://extractorapi.com/api/v1/extractor/", params=params
-        )
-        extracted = extracted_response.json()
-    except Exception:
-        extracted = {}
+class Extractor:
+    url = "https://extractorapi.com/api/v1/extractor"
+    _field = "clean_html"
 
-    if html := extracted.get("clean_html"):
-        bs = BeautifulSoup(html, "html.parser")
-        return "\n".join(
-            p.text
-            for p in bs.select("p")
-            if "extractorapi" not in p.text.lower()
+    def __init__(self, apikey):
+        self._apikey = apikey
+        self._session = requests.Session()
+
+    def extract(self, url):
+        params = dict(
+            apikey=self._apikey,
+            fields=self._field,
+            url=url,
         )
+        try:
+            r = self._session.get(self.url, params=params)
+            extracted = r.json()
+        except Exception:
+            return None
+
+        if html := extracted.get(self._field):
+            bs = BeautifulSoup(html, "html.parser")
+            return "\n".join(
+                p.text
+                for p in bs.select("p")
+                if "extractorapi" not in p.text.lower()
+            )
+
+
+def validate(text):
+    return re.search("[ґєіїҐЄІЇ]", text) or not re.search("[ёўъыэЁЎЪЫЭ]", text)
 
 
 @app.route("/refresh")
@@ -81,10 +91,10 @@ def refresh():
         lang="uk",
     )
     try:
-        response_news = requests.get(
+        r = requests.get(
             "https://gnews.io/api/v4/top-headlines", params=params
         )
-        news = response_news.json()
+        news = r.json()
     except Exception:
         news = {}
 
@@ -100,9 +110,10 @@ def refresh():
 
     articles = articles[:100]
 
+    extractor = Extractor(EXTRACTOR_API_KEY)
     for article in articles:
         if "content_full" not in article and (
-            content_full := extract(article["url"])
+            content_full := extractor.extract(article["url"])
         ):
             article["content_full"] = content_full
 
@@ -111,10 +122,6 @@ def refresh():
     tmp.replace(CACHE)
 
     return response
-
-
-def validate(text):
-    return re.search("[ґєіїҐЄІЇ]", text) or not re.search("[ёўъыэЁЎЪЫЭ]", text)
 
 
 @app.route("/")

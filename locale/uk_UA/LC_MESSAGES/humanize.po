@@ -304,7 +304,7 @@ msgstr "день"
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] "%d день"
-msgstr[1] "%d дня"
+msgstr[1] "%d дні"
 msgstr[2] "%d днів"
 
 #: src/humanize/time.py:197
@@ -316,7 +316,7 @@ msgstr "місяць"
 msgid "%d month"
 msgid_plural "%d months"
 msgstr[0] "%d місяць"
-msgstr[1] "%d місяця"
+msgstr[1] "%d місяці"
 msgstr[2] "%d місяців"
 
 #: src/humanize/time.py:203
@@ -328,7 +328,7 @@ msgstr "рік"
 msgid "1 year, %d day"
 msgid_plural "1 year, %d days"
 msgstr[0] "1 рік, %d день"
-msgstr[1] "1 рік, %d дня"
+msgstr[1] "1 рік, %d дні"
 msgstr[2] "1 рік, %d днів"
 
 #: src/humanize/time.py:210
@@ -340,7 +340,7 @@ msgstr "1 рік, 1 місяць"
 msgid "1 year, %d month"
 msgid_plural "1 year, %d months"
 msgstr[0] "1 рік, %d місяць"
-msgstr[1] "1 рік, %d місяця"
+msgstr[1] "1 рік, %d місяці"
 msgstr[2] "1 рік, %d місяців"
 
 #: src/humanize/time.py:219

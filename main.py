@@ -34,6 +34,7 @@ bootstrap = Bootstrap5(app)
 CACHE = Path(tempfile.gettempdir()) / "articles.json"
 
 GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
+GNEWS_INTERVAL = os.getenv("GNEWS_INTERVAL", 900)
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 EXTRACTOR_CONCURRENCY_LIMIT = os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1)
 
@@ -82,7 +83,7 @@ def refresh():
     articles = []
 
     if CACHE.exists():
-        if (time.time() - CACHE.stat().st_mtime) < 900:  # 15 minutes
+        if (time.time() - CACHE.stat().st_mtime) < GNEWS_INTERVAL:
             return response
         if data := CACHE.read_text():
             articles = json.loads(data)

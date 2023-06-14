@@ -34,9 +34,9 @@ bootstrap = Bootstrap5(app)
 CACHE = Path(tempfile.gettempdir()) / "articles.json"
 
 GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
-GNEWS_INTERVAL = os.getenv("GNEWS_INTERVAL", 900)
+GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
-EXTRACTOR_CONCURRENCY_LIMIT = os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1)
+EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 
 
 class Extractor:

@@ -1,3 +1,4 @@
+import concurrent
 import hashlib
 import http
 import json
@@ -5,6 +6,7 @@ import os
 import re
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -33,6 +35,7 @@ CACHE = Path(tempfile.gettempdir()) / "articles.json"
 
 GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
+EXTRACTOR_CONCURRENCY_LIMIT = os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1)
 
 
 class Extractor:
@@ -111,11 +114,16 @@ def refresh():
     articles = articles[:100]
 
     extractor = Extractor(EXTRACTOR_API_KEY)
-    for article in articles:
-        if "content_full" not in article and (
-            content_full := extractor.extract(article["url"])
-        ):
-            article["content_full"] = content_full
+    with ThreadPoolExecutor(EXTRACTOR_CONCURRENCY_LIMIT) as executor:
+        future_to_article = {
+            executor.submit(extractor.extract, article["url"]): article
+            for article in articles
+            if "content_full" not in article
+        }
+        for future in concurrent.futures.as_completed(future_to_article):
+            article = future_to_article[future]
+            if content_full := future.result():
+                article["content_full"] = content_full
 
     tmp = CACHE.with_stem(".tmp")
     tmp.write_text(json.dumps(articles))

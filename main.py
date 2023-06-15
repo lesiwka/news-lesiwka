@@ -38,6 +38,15 @@ GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 
+LAST_MODIFIED = max(
+    *(
+        datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).replace(
+            microsecond=0
+        )
+        for p in Path().rglob("*")
+    ),
+)
+
 
 class Extractor:
     url = "https://extractorapi.com/api/v1/extractor"
@@ -136,24 +145,28 @@ def refresh():
 @app.route("/")
 def index():
     articles = []
-    mtime = None
+    mtime = LAST_MODIFIED
+    since = request.if_modified_since
 
     if CACHE.exists():
-        mtime = int(CACHE.stat().st_mtime)
-        since = request.if_modified_since
-        if since and mtime <= since.timestamp():
+        mtime = max(
+            mtime,
+            datetime.fromtimestamp(
+                CACHE.stat().st_mtime, tz=timezone.utc
+            ).replace(microsecond=0),
+        )
+        if since and mtime <= since:
             return Response(status=http.HTTPStatus.NOT_MODIFIED)
 
         if data := CACHE.read_text():
             articles = json.loads(data)
 
     if not articles:
-        since = request.if_modified_since
-        if since and since.timestamp() == 0:
+        if since and mtime <= since:
             return Response(status=http.HTTPStatus.NOT_MODIFIED)
 
         response = make_response(render_template("loading.html"))
-        response.last_modified = 0
+        response.last_modified = mtime
         return response
 
     now = datetime.now(tz=timezone.utc)

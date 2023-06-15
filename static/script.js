@@ -19,5 +19,6 @@ document.querySelectorAll(".accordion-item").forEach((el, _, arr) => {
 
   el.addEventListener("shown.bs.collapse", () => {
     window.cancelAnimationFrame(animationFrameId);
+    window.scroll({behavior: "smooth", left: 0, top: el.offsetTop})
   });
 });

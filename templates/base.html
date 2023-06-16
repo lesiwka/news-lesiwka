@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" sizes="57x57" href="/static/icons/apple-icon-57x57.png">
@@ -22,27 +23,48 @@
     <meta name="msapplication-TileColor" content="#3e3f3a">
     <meta name="msapplication-TileImage" content="/static/icons/ms-icon-144x144.png">
     <meta name="theme-color" content="#3e3f3a">
+
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" href="/static/styles.css">
 
     <script>history.scrollRestoration = "manual"</script>
     {%- block meta %}{% endblock %}
 
-    <title>[{{ "НОВИНИ" | lesiwka }}]</title>
+    {%- set title = "[НОВИНИ]" | lesiwka %}
+    {%- set description = "Новини України та світу українською латинкою" %}
+    {%- set image = request.host_url + "static/og-image.png" %}
+
+    <title>{{ title }}</title>
+    <meta name="description" content="{{ description }}">
+
+    <meta property="og:url" content="{{ request.host_url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:image" content="{{ image }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="{{ request.host }}">
+    <meta property="twitter:url" content="{{ request.host_url }}">
+    <meta name="twitter:title" content="{{ title }}">
+    <meta name="twitter:description" content="{{ description }}">
+    <meta name="twitter:image" content="{{ image }}">
 </head>
 <body>
 <header>
     <nav class="navbar navbar-dark fixed-top bg-dark">
         <div class="container d-flex">
             <div class="navbar-brand font-weight-bold font-monospace">
-                <a class="text-decoration-none" href="/">[{{ "НОВИНИ" | lesiwka }}]</a>
+                <a class="text-decoration-none" href="/">{{ title }}</a>
             </div>
         </div>
     </nav>
 </header>
+
 <main class="container main">
 {%- block content %}{% endblock -%}
 </main>
+
 <footer class="bg-success footer">
     <div class="container text-center">
         <a class="text-dark" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>

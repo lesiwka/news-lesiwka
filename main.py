@@ -24,14 +24,14 @@ from flask import (
     request,
 )
 from flask_bootstrap import Bootstrap5
+from google.appengine.api import memcache, wrap_wsgi_app
 
 app = Flask(__name__)
+app.wsgi_app = wrap_wsgi_app(app.wsgi_app)
 app.jinja_env.filters["lesiwka"] = lesiwka.encode
 app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = "sandstone"
 
 bootstrap = Bootstrap5(app)
-
-CACHE = Path(tempfile.gettempdir()) / "articles.json"
 
 GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
 GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
@@ -40,9 +40,7 @@ EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 
 LAST_MODIFIED = max(
     *(
-        datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).replace(
-            microsecond=0
-        )
+        datetime.fromtimestamp(int(p.stat().st_mtime), tz=timezone.utc)
         for p in Path().rglob("*")
     ),
 )
@@ -81,6 +79,47 @@ def validate(text):
     return re.search("[ґєіїҐЄІЇ]", text) or not re.search("[ёўъыэЁЎЪЫЭ]", text)
 
 
+class Cache:
+    if os.getenv("SERVER_SOFTWARE"):
+        _ts_key = "ts"
+        _data_key = "data"
+
+        @classmethod
+        def ts(cls):
+            return memcache.get(cls._ts_key)
+
+        @classmethod
+        def get(cls):
+            return memcache.get(cls._data_key)
+
+        @classmethod
+        def set(cls, data):
+            memcache.set_multi(
+                {
+                    cls._ts_key: int(time.time()),
+                    cls._data_key: data,
+                }
+            )
+
+    else:
+        _path = Path(tempfile.gettempdir()) / "articles.json"
+
+        @classmethod
+        def ts(cls):
+            if cls._path.exists():
+                return int(cls._path.stat().st_mtime)
+
+        @classmethod
+        def get(cls):
+            return cls._path.read_text()
+
+        @classmethod
+        def set(cls, data):
+            tmp = cls._path.with_stem(".tmp")
+            tmp.write_text(data)
+            tmp.replace(cls._path)
+
+
 @app.route("/_refresh")
 def refresh():
     response = (
@@ -91,10 +130,10 @@ def refresh():
 
     articles = []
 
-    if CACHE.exists():
-        if (time.time() - CACHE.stat().st_mtime) < GNEWS_INTERVAL:
+    if ts := Cache.ts():
+        if (time.time() - ts) < GNEWS_INTERVAL:
             return response
-        if data := CACHE.read_text():
+        if data := Cache.get():
             articles = json.loads(data)
 
     params = dict(
@@ -135,9 +174,7 @@ def refresh():
             if content_full := future.result():
                 article["content_full"] = content_full
 
-    tmp = CACHE.with_stem(".tmp")
-    tmp.write_text(json.dumps(articles))
-    tmp.replace(CACHE)
+    Cache.set(json.dumps(articles))
 
     return response
 
@@ -148,17 +185,15 @@ def index():
     mtime = LAST_MODIFIED
     since = request.if_modified_since
 
-    if CACHE.exists():
+    if ts := Cache.ts():
         mtime = max(
             mtime,
-            datetime.fromtimestamp(
-                CACHE.stat().st_mtime, tz=timezone.utc
-            ).replace(microsecond=0),
+            datetime.fromtimestamp(ts, tz=timezone.utc),
         )
         if since and mtime <= since:
             return Response(status=http.HTTPStatus.NOT_MODIFIED)
 
-        if data := CACHE.read_text():
+        if data := Cache.get():
             articles = json.loads(data)
 
     if not articles:

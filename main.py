@@ -10,11 +10,11 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-import humanize
 import lesiwka
 import requests
 from bs4 import BeautifulSoup
 from dateutil.parser import isoparse
+from dateutil.tz import gettz
 from flask import (
     Flask,
     Response,
@@ -39,6 +39,7 @@ EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 
 START_TIME = datetime.now(tz=timezone.utc).replace(microsecond=0)
+TZ = gettz("Europe/Kiev")
 
 
 class Extractor:
@@ -244,17 +245,17 @@ def index():
         response.last_modified = mtime
         return response
 
-    now = datetime.now(tz=timezone.utc)
-    humanize.i18n.activate("uk_UA", path="locale")
-
     for article in articles:
         article_hash = hashlib.shake_256(article["url"].encode())
         article["id"] = "article-" + article_hash.hexdigest(4)
 
         article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
 
-        published_at = isoparse(article["publishedAt"])
-        article["published"] = humanize.naturaltime(published_at, when=now)
+        pub = isoparse(article["publishedAt"]).astimezone(TZ)
+        article["published"] = (
+            f"{pub.day}.{pub.month:02}.{pub.year:04}, "
+            f"{pub.hour}:{pub.minute:02}"
+        )
 
         article["source_domain"] = article["source"]["url"].split("://")[-1]
 

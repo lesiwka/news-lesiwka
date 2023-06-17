@@ -208,17 +208,14 @@ def refresh():
             "https://gnews.io/api/v4/top-headlines", params=params
         ).json()
     except requests.RequestException:
-        return response
+        news = {}
 
     old_urls = [article["url"] for article in old_articles]
     new_articles = [
         article
         for article in news.get("articles", [])
-        if validate(article["title"]) and not article["url"] not in old_urls
+        if validate(article["title"]) and article["url"] not in old_urls
     ]
-
-    if not new_articles:
-        return response
 
     articles = (new_articles + old_articles)[:100]
 

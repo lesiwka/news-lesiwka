@@ -74,6 +74,11 @@ def validate(text):
     return re.search("[ґєіїҐЄІЇ]", text) or not re.search("[ёўъыэЁЎЪЫЭ]", text)
 
 
+def time_limit(timeout, func, *args, **kwargs):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        return executor.submit(func, *args, **kwargs).result(timeout)
+
+
 class Cache:
     if os.getenv("SERVER_SOFTWARE"):
         _ts_key = "ts"
@@ -131,7 +136,7 @@ class Cache:
                     time.sleep(0.1)
 
                 try:
-                    return f(*args, **kwargs)
+                    return time_limit(cls._lock_time, f, *args, **kwargs)
                 finally:
                     memcache.delete(cls._lock_key)
 

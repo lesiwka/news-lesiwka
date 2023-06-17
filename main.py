@@ -98,7 +98,7 @@ class Cache:
             memcache.set_multi(
                 {
                     cls._ts_key: int(time.time()),
-                    cls._data_key: json.dumps(data),
+                    cls._data_key: json.dumps(data, ensure_ascii=False),
                 }
             )
 
@@ -137,7 +137,7 @@ class Cache:
         @classmethod
         def set(cls, data):
             tmp = cls._path.with_stem(".tmp")
-            tmp.write_text(json.dumps(data))
+            tmp.write_text(json.dumps(data, ensure_ascii=False))
             tmp.replace(cls._path)
 
         @classmethod

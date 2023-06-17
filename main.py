@@ -38,12 +38,7 @@ GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 
-LAST_MODIFIED = max(
-    *(
-        datetime.fromtimestamp(int(p.stat().st_mtime), tz=timezone.utc)
-        for p in Path().rglob("*")
-    ),
-)
+START_TIME = datetime.now(tz=timezone.utc).replace(microsecond=0)
 
 
 class Extractor:
@@ -228,7 +223,7 @@ def refresh():
 @app.route("/")
 def index():
     articles = []
-    mtime = LAST_MODIFIED
+    mtime = START_TIME
     since = request.if_modified_since
 
     if ts := Cache.ts():

@@ -88,6 +88,7 @@ class Cache:
         def get(cls):
             if raw := memcache.get(cls._data_key):
                 return json.loads(raw)
+            return []
 
         @classmethod
         def set(cls, data):
@@ -133,6 +134,7 @@ class Cache:
         def get(cls):
             if raw := cls._path.read_text():
                 return json.loads(raw)
+            return []
 
         @classmethod
         def set(cls, data):
@@ -170,13 +172,12 @@ def refresh():
     if not Cache.lock():
         return response
 
-    articles = []
-
     if ts := Cache.ts():
         if (time.time() - ts) < GNEWS_INTERVAL:
             return response
-
-        articles = Cache.get() or articles
+        old_articles = Cache.get()
+    else:
+        old_articles = []
 
     params = dict(
         apikey=GNEWS_API_KEY,
@@ -190,19 +191,21 @@ def refresh():
         )
         news = r.json()
     except Exception:
-        news = {}
+        return response
 
-    if new_articles := news.get("articles"):
-        for article in reversed(new_articles):
-            if not validate(article["title"]):
-                continue
+    new_articles = [
+        article
+        for article in news.get("articles", [])
+        if validate(article["title"])
+        and not next(
+            (a for a in old_articles if a["url"] == article["url"]), False
+        )
+    ]
 
-            if next((a for a in articles if a["url"] == article["url"]), None):
-                continue
+    if not new_articles:
+        return response
 
-            articles.insert(0, article)
-
-    articles = articles[:100]
+    articles = (new_articles + old_articles)[:100]
 
     extractor = Extractor(EXTRACTOR_API_KEY)
     with ThreadPoolExecutor(EXTRACTOR_CONCURRENCY_LIMIT) as executor:
@@ -223,19 +226,17 @@ def refresh():
 
 @app.route("/")
 def index():
-    articles = []
     mtime = START_TIME
     since = request.if_modified_since
 
     if ts := Cache.ts():
-        mtime = max(
-            mtime,
-            datetime.fromtimestamp(ts, tz=timezone.utc),
-        )
+        mtime = max(mtime, datetime.fromtimestamp(ts, tz=timezone.utc))
         if since and mtime <= since:
             return Response(status=http.HTTPStatus.NOT_MODIFIED)
 
-        articles = Cache.get() or articles
+        articles = Cache.get()
+    else:
+        articles = []
 
     if not articles:
         if since and mtime <= since:

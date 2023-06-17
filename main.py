@@ -101,8 +101,13 @@ class Cache:
                 }
             )
 
+        @staticmethod
+        def lock():
+            return memcache.add("lock", int(time.time()), 300)
+
     else:
         _path = Path(tempfile.gettempdir()) / "articles.json"
+        _lock = Path(tempfile.gettempdir()) / "lock.txt"
 
         @classmethod
         def ts(cls):
@@ -119,6 +124,10 @@ class Cache:
             tmp.write_text(data)
             tmp.replace(cls._path)
 
+        @staticmethod
+        def lock():
+            return True
+
 
 @app.route("/_refresh")
 def refresh():
@@ -127,6 +136,9 @@ def refresh():
         if request.headers.get("X-Appengine-Cron") == "true"
         else redirect("/")
     )
+
+    if not Cache.lock():
+        return response
 
     articles = []
 

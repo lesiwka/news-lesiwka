@@ -13,7 +13,6 @@ from pathlib import Path
 import lesiwka
 import requests
 from bs4 import BeautifulSoup
-from dateutil.parser import isoparse
 from dateutil.tz import gettz
 from flask import (
     Flask,
@@ -252,7 +251,7 @@ def index():
 
         article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
 
-        pub = isoparse(article["publishedAt"]).astimezone(TZ)
+        pub = datetime.fromisoformat(article["publishedAt"]).astimezone(TZ)
         article["published"] = (
             f"{pub.day}.{pub.month:02}.{pub.year:04}, "
             f"{pub.hour}:{pub.minute:02}"

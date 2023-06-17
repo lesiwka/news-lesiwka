@@ -78,6 +78,8 @@ class Cache:
     if os.getenv("SERVER_SOFTWARE"):
         _ts_key = "ts"
         _data_key = "data"
+        _lock_key = "lock"
+        _lock_time = 300
 
         @classmethod
         def ts(cls):
@@ -116,10 +118,24 @@ class Cache:
 
             return dict(ts=ts, count=count, size=size)
 
-        @staticmethod
-        def lock():
-            return memcache.add("lock", int(time.time()), 300)
+        @classmethod
+        def lock(cls, f):
+            def wrapper(*args, **kwargs):
+                due = time.time() + cls._lock_time
+                while not memcache.add(
+                    cls._lock_key, int(time.time()), time=cls._lock_time
+                ):
+                    if time.time() > due:
+                        return Response(status=http.HTTPStatus.LOCKED)
 
+                    time.sleep(0.1)
+
+                try:
+                    return f(*args, **kwargs)
+                finally:
+                    memcache.delete(cls._lock_key)
+
+            return wrapper
     else:
         _path = Path(tempfile.gettempdir()) / "articles.json"
         _lock = Path(tempfile.gettempdir()) / "lock.txt"
@@ -156,20 +172,18 @@ class Cache:
             return dict(ts=int(st.st_mtime), count=data_len, size=st.st_size)
 
         @staticmethod
-        def lock():
-            return True
+        def lock(f):
+            return f
 
 
 @app.route("/_refresh")
+@Cache.lock
 def refresh():
     response = (
         Response()
         if request.headers.get("X-Appengine-Cron") == "true"
         else redirect("/")
     )
-
-    if not Cache.lock():
-        return response
 
     if ts := Cache.ts():
         if (time.time() - ts) < GNEWS_INTERVAL:

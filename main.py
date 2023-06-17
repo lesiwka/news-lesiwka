@@ -266,4 +266,8 @@ def index():
 
 @app.route("/_stats")
 def stats():
-    return "<br>".join(f"{k}: {v}" for k, v in Cache.stats().items())
+    return (
+        "<pre>\n"
+        + "\n".join(f"{k}: {v}" for k, v in Cache.stats().items())
+        + "\n</pre>\n"
+    )

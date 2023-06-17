@@ -103,18 +103,19 @@ class Cache:
             )
 
         @classmethod
-        def stat(cls):
+        def stats(cls):
             multi = memcache.get_multi([cls._ts_key, cls._data_key])
             ts = multi.get(cls._ts_key)
             data = multi.get(cls._data_key)
 
-            data_len = None
-            dump_len = None
             try:
                 data_len = len(json.loads(data))
-                dump_len = len(data)
             except (TypeError, json.JSONDecodeError):
-                pass
+                data_len = None
+            try:
+                dump_len = len(data.encode(errors="replace"))
+            except AttributeError:
+                dump_len = None
 
             return ts, data_len, dump_len
 
@@ -143,19 +144,18 @@ class Cache:
             tmp.replace(cls._path)
 
         @classmethod
-        def stat(cls):
+        def stats(cls):
             try:
-                dump = cls._path.read_text()
+                st = cls._path.stat()
             except FileNotFoundError:
                 return None, None, None
 
-            data_len = None
             try:
-                data_len = len(json.loads(dump))
+                data_len = len(json.loads(cls._path.read_text()))
             except (TypeError, json.JSONDecodeError):
-                pass
+                data_len = None
 
-            return int(cls._path.stat().st_mtime), data_len, len(dump)
+            return int(st.st_mtime), data_len, st.st_size
 
         @staticmethod
         def lock():
@@ -270,4 +270,4 @@ def index():
 
 @app.route("/_stats")
 def stats():
-    return "<br>".join(map(str, Cache.stat()))
+    return "<br>".join(map(str, Cache.stats()))

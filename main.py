@@ -105,15 +105,15 @@ class Cache:
             raw = multi.get(cls._data_key)
 
             try:
-                data_len = len(json.loads(raw))
+                count = len(json.loads(raw))
             except (TypeError, json.JSONDecodeError):
-                data_len = None
+                count = None
             try:
-                raw_len = len(raw.encode(errors="replace"))
+                size = len(raw.encode(errors="replace"))
             except AttributeError:
-                raw_len = None
+                size = None
 
-            return dict(ts=ts, data=data_len, raw=raw_len)
+            return dict(ts=ts, count=count, size=size)
 
         @staticmethod
         def lock():
@@ -144,14 +144,14 @@ class Cache:
             try:
                 st = cls._path.stat()
             except FileNotFoundError:
-                return None, None, None
+                return dict(ts=None, count=None, size=None)
 
             try:
                 data_len = len(json.loads(cls._path.read_text()))
             except (TypeError, json.JSONDecodeError):
                 data_len = None
 
-            return dict(ts=int(st.st_mtime), data=data_len, raw=st.st_size)
+            return dict(ts=int(st.st_mtime), count=data_len, size=st.st_size)
 
         @staticmethod
         def lock():

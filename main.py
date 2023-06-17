@@ -95,12 +95,13 @@ class Cache:
 
         @classmethod
         def set(cls, data):
-            memcache.set_multi(
+            while data and memcache.set_multi(
                 {
                     cls._ts_key: int(time.time()),
                     cls._data_key: json.dumps(data, ensure_ascii=False),
                 }
-            )
+            ):
+                data.pop()
 
         @classmethod
         def stats(cls):

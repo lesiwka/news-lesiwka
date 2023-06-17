@@ -104,7 +104,9 @@ class Cache:
 
         @classmethod
         def stat(cls):
-            ts, data = memcache.get_multi([cls._ts_key, cls._data_key])
+            multi = memcache.get_multi([cls._ts_key, cls._data_key])
+            ts = multi.get(cls._ts_key)
+            data = multi.get(cls._data_key)
 
             data_len = None
             dump_len = None

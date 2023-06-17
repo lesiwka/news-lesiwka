@@ -56,9 +56,8 @@ class Extractor:
             url=url,
         )
         try:
-            r = self._session.get(self.url, params=params)
-            extracted = r.json()
-        except Exception:
+            extracted = self._session.get(self.url, params=params).json()
+        except requests.RequestException:
             return None
 
         if html := extracted.get(self._field):
@@ -204,11 +203,10 @@ def refresh():
         lang="uk",
     )
     try:
-        r = requests.get(
+        news = requests.get(
             "https://gnews.io/api/v4/top-headlines", params=params
-        )
-        news = r.json()
-    except Exception:
+        ).json()
+    except requests.RequestException:
         return response
 
     new_articles = [

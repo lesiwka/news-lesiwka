@@ -90,16 +90,31 @@ class Cache:
 
         @classmethod
         def get(cls):
-            return memcache.get(cls._data_key)
+            if data := memcache.get(cls._data_key):
+                return json.loads(data)
 
         @classmethod
         def set(cls, data):
             memcache.set_multi(
                 {
                     cls._ts_key: int(time.time()),
-                    cls._data_key: data,
+                    cls._data_key: json.dumps(data),
                 }
             )
+
+        @classmethod
+        def stat(cls):
+            ts, data = memcache.get_multi([cls._ts_key, cls._data_key])
+
+            data_len = None
+            dump_len = None
+            try:
+                data_len = len(json.loads(data))
+                dump_len = len(data)
+            except (TypeError, json.JSONDecodeError):
+                pass
+
+            return ts, data_len, dump_len
 
         @staticmethod
         def lock():
@@ -116,13 +131,29 @@ class Cache:
 
         @classmethod
         def get(cls):
-            return cls._path.read_text()
+            if data := cls._path.read_text():
+                return json.loads(data)
 
         @classmethod
         def set(cls, data):
             tmp = cls._path.with_stem(".tmp")
-            tmp.write_text(data)
+            tmp.write_text(json.dumps(data))
             tmp.replace(cls._path)
+
+        @classmethod
+        def stat(cls):
+            try:
+                dump = cls._path.read_text()
+            except FileNotFoundError:
+                return None, None, None
+
+            data_len = None
+            try:
+                data_len = len(json.loads(dump))
+            except (TypeError, json.JSONDecodeError):
+                pass
+
+            return int(cls._path.stat().st_mtime), data_len, len(dump)
 
         @staticmethod
         def lock():
@@ -145,8 +176,8 @@ def refresh():
     if ts := Cache.ts():
         if (time.time() - ts) < GNEWS_INTERVAL:
             return response
-        if data := Cache.get():
-            articles = json.loads(data)
+
+        articles = Cache.get() or articles
 
     params = dict(
         apikey=GNEWS_API_KEY,
@@ -186,7 +217,7 @@ def refresh():
             if content_full := future.result():
                 article["content_full"] = content_full
 
-    Cache.set(json.dumps(articles))
+    Cache.set(articles)
 
     return response
 
@@ -205,8 +236,7 @@ def index():
         if since and mtime <= since:
             return Response(status=http.HTTPStatus.NOT_MODIFIED)
 
-        if data := Cache.get():
-            articles = json.loads(data)
+        articles = Cache.get() or articles
 
     if not articles:
         if since and mtime <= since:
@@ -234,3 +264,8 @@ def index():
     response.last_modified = mtime
 
     return response
+
+
+@app.route("/_stats")
+def stats():
+    return "<br>".join(map(str, Cache.stat()))

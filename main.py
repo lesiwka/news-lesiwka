@@ -74,7 +74,7 @@ def validate(text):
 
 
 def time_limit(timeout, func, *args, **kwargs):
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
         return executor.submit(func, *args, **kwargs).result(timeout)
 
 
@@ -192,6 +192,7 @@ def refresh():
     if ts := Cache.ts():
         if (time.time() - ts) < GNEWS_INTERVAL:
             return response
+
         old_articles = Cache.get()
     else:
         old_articles = []
@@ -209,13 +210,11 @@ def refresh():
     except requests.RequestException:
         return response
 
+    old_urls = [article["url"] for article in old_articles]
     new_articles = [
         article
         for article in news.get("articles", [])
-        if validate(article["title"])
-        and not next(
-            (a for a in old_articles if a["url"] == article["url"]), False
-        )
+        if validate(article["title"]) and not article["url"] not in old_urls
     ]
 
     if not new_articles:

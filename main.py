@@ -90,8 +90,8 @@ class Cache:
 
         @classmethod
         def get(cls):
-            if data := memcache.get(cls._data_key):
-                return json.loads(data)
+            if raw := memcache.get(cls._data_key):
+                return json.loads(raw)
 
         @classmethod
         def set(cls, data):
@@ -107,18 +107,18 @@ class Cache:
         def stats(cls):
             multi = memcache.get_multi([cls._ts_key, cls._data_key])
             ts = multi.get(cls._ts_key)
-            data = multi.get(cls._data_key)
+            raw = multi.get(cls._data_key)
 
             try:
-                data_len = len(json.loads(data))
+                data_len = len(json.loads(raw))
             except (TypeError, json.JSONDecodeError):
                 data_len = None
             try:
-                dump_len = len(data.encode(errors="replace"))
+                raw_len = len(raw.encode(errors="replace"))
             except AttributeError:
-                dump_len = None
+                raw_len = None
 
-            return ts, data_len, dump_len
+            return dict(ts=ts, data=data_len, raw=raw_len)
 
         @staticmethod
         def lock():
@@ -135,8 +135,8 @@ class Cache:
 
         @classmethod
         def get(cls):
-            if data := cls._path.read_text():
-                return json.loads(data)
+            if raw := cls._path.read_text():
+                return json.loads(raw)
 
         @classmethod
         def set(cls, data):
@@ -156,7 +156,7 @@ class Cache:
             except (TypeError, json.JSONDecodeError):
                 data_len = None
 
-            return int(st.st_mtime), data_len, st.st_size
+            return dict(ts=int(st.st_mtime), data=data_len, raw=st.st_size)
 
         @staticmethod
         def lock():
@@ -271,4 +271,4 @@ def index():
 
 @app.route("/_stats")
 def stats():
-    return "<br>".join(map(str, Cache.stats()))
+    return "<br>".join(f"{k}: {v}" for k, v in Cache.stats().items())

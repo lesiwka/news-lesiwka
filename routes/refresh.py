@@ -65,7 +65,7 @@ def refresh():
             if content_full := future.result():
                 article["content_full"] = content_full
 
-    cache.daily(len(new_articles))
+    cache.avg(len(new_articles))
     cache.put(articles)
 
     return response

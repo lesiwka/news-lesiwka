@@ -28,7 +28,7 @@ def stats():
     try:
         st = _path.stat()
     except FileNotFoundError:
-        return dict(ts=None, count=None, size=None, daily=None)
+        return dict(ts=None, count=None, size=None, avg=None)
 
     try:
         data_len = len(json.loads(_path.read_text()))
@@ -36,10 +36,10 @@ def stats():
         data_len = None
 
     return dict(
-        cache_ts=int(st.st_mtime),
-        cache_count=data_len,
-        cache_size=st.st_size,
-        daily=None,
+        ts=int(st.st_mtime),
+        count=data_len,
+        size=st.st_size,
+        avg=None,
     )
 
 
@@ -47,5 +47,5 @@ def lock(f):
     return f
 
 
-def daily(diff):
+def avg(diff):
     pass

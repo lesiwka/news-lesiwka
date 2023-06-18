@@ -3,3 +3,7 @@
 .gitignore
 .idea/
 __pycache__/
+cron.yaml
+deploy.sh
+env_variables.yaml.sample
+pyproject.toml

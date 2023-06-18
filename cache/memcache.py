@@ -1,7 +1,8 @@
 import http
 import json
+import math
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Response
 from google.appengine.api import memcache
@@ -14,6 +15,7 @@ _lock_key = "lock"
 _lock_time = 300
 _count_avg = "count_avg"
 _count_cur = "count_cur"
+_count_mark = "count_mark"
 
 
 def ts():
@@ -72,12 +74,19 @@ def lock(f):
 
 
 def avg(diff):
-    memcache.incr(_count_cur, diff, initial_value=0)
-
-    multi = memcache.get_multi([_count_avg, _count_cur])
-
     now = datetime.now()
-    if now.hour == now.minute == 0:
-        cur = multi[_count_cur]
-        avg_ = multi.get(_count_avg, -cur) or cur
-        memcache.set_multi({_count_avg: (avg_ + cur) // 2, _count_cur: 0})
+
+    if memcache.get(_count_cur) is not None:
+        memcache.incr(_count_cur, diff)
+
+        multi = memcache.get_multi([_count_avg, _count_cur, _count_mark])
+        if multi.get(_count_mark) is None:
+            cur = multi[_count_cur]
+            avg_ = multi.get(_count_avg, -cur) or cur
+            memcache.set_multi({_count_avg: (avg_ + cur) // 2, _count_cur: 0})
+    else:
+        memcache.set(_count_cur, diff)
+
+    tomorrow = datetime.combine(now.date(), now.min.time()) + timedelta(1)
+    timeout = math.ceil((tomorrow - now).total_seconds())
+    memcache.set(_count_mark, int(now.timestamp()), time=timeout)

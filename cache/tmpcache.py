@@ -28,15 +28,24 @@ def stats():
     try:
         st = _path.stat()
     except FileNotFoundError:
-        return dict(ts=None, count=None, size=None)
+        return dict(ts=None, count=None, size=None, daily=None)
 
     try:
         data_len = len(json.loads(_path.read_text()))
     except (TypeError, json.JSONDecodeError):
         data_len = None
 
-    return dict(ts=int(st.st_mtime), count=data_len, size=st.st_size)
+    return dict(
+        cache_ts=int(st.st_mtime),
+        cache_count=data_len,
+        cache_size=st.st_size,
+        daily=None,
+    )
 
 
 def lock(f):
     return f
+
+
+def daily(diff):
+    pass

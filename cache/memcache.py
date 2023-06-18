@@ -1,6 +1,7 @@
 import http
 import json
 import time
+from datetime import datetime
 
 from flask import Response
 from google.appengine.api import memcache
@@ -11,6 +12,8 @@ _ts_key = "ts"
 _data_key = "data"
 _lock_key = "lock"
 _lock_time = 300
+_count_avg = "count_avg"
+_count_cur = "count_cur"
 
 
 def ts():
@@ -34,9 +37,10 @@ def put(data):
 
 
 def stats():
-    multi = memcache.get_multi([_ts_key, _data_key])
+    multi = memcache.get_multi([_ts_key, _data_key, _count_avg, _count_cur])
     ts_ = multi.get(_ts_key)
     raw = multi.get(_data_key)
+    daily_ = multi.get(_count_avg, multi.get(_count_cur))
 
     try:
         count = len(json.loads(raw))
@@ -47,7 +51,7 @@ def stats():
     except AttributeError:
         size = None
 
-    return dict(ts=ts_, count=count, size=size)
+    return dict(ts=ts_, count=count, size=size, daily=daily_)
 
 
 def lock(f):
@@ -65,3 +69,15 @@ def lock(f):
             memcache.delete(_lock_key)
 
     return wrapper
+
+
+def daily(diff):
+    memcache.incr(_count_cur, diff, initial_value=0)
+
+    multi = memcache.get_multi([_count_avg, _count_cur])
+
+    now = datetime.now()
+    if now.hour == now.minute == 0:
+        cur = multi[_count_cur]
+        avg = multi.get(_count_avg, -cur) or cur
+        memcache.set_multi({_count_avg: (avg + cur) // 2, _count_cur: 0})

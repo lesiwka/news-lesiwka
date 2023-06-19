@@ -95,6 +95,8 @@ def avg(diff):
             cur = multi[_count_cur]
             avg_ = multi.get(_count_avg, -cur) or cur
             memcache.set_multi({_count_avg: (avg_ + cur) // 2, _count_cur: 0})
+        else:
+            return
     else:
         memcache.set(_count_cur, diff)
 

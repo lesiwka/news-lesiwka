@@ -1,5 +1,4 @@
 import os
-import time
 from concurrent import futures
 
 import requests
@@ -23,13 +22,10 @@ def refresh():
         else redirect("/")
     )
 
-    if ts := cache.ts():
-        if (time.time() - ts) < GNEWS_INTERVAL:
-            return response
+    if not cache.check(interval=GNEWS_INTERVAL):
+        return response
 
-        old_articles = cache.get()
-    else:
-        old_articles = []
+    old_articles = cache.get() or []
 
     params = dict(
         apikey=GNEWS_API_KEY,

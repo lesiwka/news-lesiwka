@@ -16,8 +16,8 @@ def index():
     mtime = START_TIME
     since = request.if_modified_since
 
-    if ts := cache.ts():
-        mtime = max(mtime, datetime.fromtimestamp(ts, tz=timezone.utc))
+    if upd := cache.upd():
+        mtime = max(mtime, datetime.fromtimestamp(upd, tz=timezone.utc))
         if since and mtime <= since:
             return Response(status=http.HTTPStatus.NOT_MODIFIED)
 

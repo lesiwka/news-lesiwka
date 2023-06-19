@@ -10,6 +10,7 @@ from google.appengine.api import memcache
 from utils import time_limit
 
 _ts_key = "ts"
+_upd_key = "upd"
 _data_key = "data"
 _lock_key = "lock"
 _lock_time = 300
@@ -18,8 +19,15 @@ _count_cur = "count_cur"
 _count_mark = "count_mark"
 
 
-def ts():
-    return memcache.get(_ts_key)
+def check(interval):
+    if (now := int(time.time())) - (memcache.get(_ts_key) or 0) > interval:
+        memcache.set(_ts_key, now)
+        return True
+    return False
+
+
+def upd():
+    return memcache.get(_upd_key)
 
 
 def get():
@@ -31,7 +39,7 @@ def get():
 def put(data):
     while data and memcache.set_multi(
         {
-            _ts_key: int(time.time()),
+            _upd_key: int(time.time()),
             _data_key: json.dumps(data, ensure_ascii=False),
         }
     ):
@@ -39,8 +47,11 @@ def put(data):
 
 
 def stats():
-    multi = memcache.get_multi([_ts_key, _data_key, _count_avg, _count_cur])
-    ts_ = multi.get(_ts_key)
+    multi = memcache.get_multi(
+        [_ts_key, _upd_key, _data_key, _count_avg, _count_cur]
+    )
+    ts = multi.get(_ts_key)
+    upd_ = multi.get(_upd_key)
     raw = multi.get(_data_key)
     avg_ = multi.get(_count_avg) or multi.get(_count_cur)
 
@@ -53,7 +64,7 @@ def stats():
     except AttributeError:
         size = None
 
-    return dict(ts=ts_, count=count, size=size, avg=avg_)
+    return dict(ts=ts, upd=upd_, count=count, size=size, avg=avg_)
 
 
 def lock(f):

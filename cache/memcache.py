@@ -42,7 +42,7 @@ def stats():
     multi = memcache.get_multi([_ts_key, _data_key, _count_avg, _count_cur])
     ts_ = multi.get(_ts_key)
     raw = multi.get(_data_key)
-    avg_ = multi.get(_count_avg, multi.get(_count_cur))
+    avg_ = multi.get(_count_avg) or multi.get(_count_cur)
 
     try:
         count = len(json.loads(raw))

@@ -12,6 +12,7 @@ from utils import time_limit
 _ts_key = "ts"
 _upd_key = "upd"
 _data_key = "data"
+_page_key = "page"
 _lock_key = "lock"
 _lock_time = 300
 _count_avg = "count_avg"
@@ -36,14 +37,19 @@ def get():
     return []
 
 
-def put(data):
-    while data and memcache.set_multi(
+def page():
+    return memcache.get(_page_key)
+
+
+def put(articles, renderer):
+    while articles and memcache.set_multi(
         {
             _upd_key: int(time.time()),
-            _data_key: json.dumps(data, ensure_ascii=False),
+            _data_key: json.dumps(articles, ensure_ascii=False),
+            _page_key: renderer(articles),
         }
     ):
-        data.pop()
+        articles.pop()
 
 
 def stats():

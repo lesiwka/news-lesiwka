@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 _path = Path(tempfile.gettempdir()) / "articles.json"
+_page = Path(tempfile.gettempdir()) / "novyny.html"
 _lock = Path(tempfile.gettempdir()) / "lock.txt"
 
 
@@ -23,10 +24,19 @@ def get():
     return []
 
 
-def put(data):
+def page():
+    if _page.exists():
+        return _page.read_text()
+
+
+def put(articles, renderer):
     tmp = _path.with_stem(".tmp")
-    tmp.write_text(json.dumps(data, ensure_ascii=False))
+    tmp.write_text(json.dumps(articles, ensure_ascii=False))
     tmp.replace(_path)
+
+    tmp = _page.with_stem(".tmp")
+    tmp.write_text(renderer(articles))
+    tmp.replace(_page)
 
 
 def stats():

@@ -1,9 +1,12 @@
+import hashlib
 import os
+import re
 from concurrent import futures
 from datetime import datetime, timedelta, timezone
 
 import requests
-from flask import Response, redirect, request
+from dateutil import tz
+from flask import Response, redirect, render_template, request
 
 from cache import cache
 from extractor import Extractor
@@ -13,6 +16,25 @@ GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
 GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
 EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
 EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
+TZ = tz.gettz("Europe/Kiev")
+
+
+def _render(articles):
+    for article in articles:
+        article_hash = hashlib.shake_256(article["url"].encode())
+        article["id"] = "article-" + article_hash.hexdigest(4)
+
+        article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
+
+        pub = datetime.fromisoformat(article["publishedAt"]).astimezone(TZ)
+        article["published"] = (
+            f"{pub.day}.{pub.month:02}.{pub.year:04}, "
+            f"{pub.hour}:{pub.minute:02}"
+        )
+
+        article["source_domain"] = article["source"]["url"].split("://")[-1]
+
+    return render_template("index.html", articles=articles)
 
 
 @cache.lock
@@ -69,6 +91,6 @@ def refresh():
 
     if new_articles or future_to_article:
         cache.avg(len(new_articles))
-        cache.put(articles)
+        cache.put(articles, _render)
 
     return response

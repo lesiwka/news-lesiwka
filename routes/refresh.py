@@ -1,5 +1,6 @@
 import os
 from concurrent import futures
+from datetime import datetime, timedelta, timezone
 
 import requests
 from flask import Response, redirect, request
@@ -25,7 +26,12 @@ def refresh():
     if not cache.check(interval=GNEWS_INTERVAL):
         return response
 
-    old_articles = cache.get() or []
+    now = datetime.now(tz=timezone.utc)
+    old_articles = [
+        article
+        for article in cache.get() or []
+        if now - datetime.fromisoformat(article["publishedAt"]) < timedelta(2)
+    ]
 
     params = dict(
         apikey=GNEWS_API_KEY,
@@ -47,7 +53,7 @@ def refresh():
         if validate(article["title"]) and article["url"] not in old_urls
     ]
 
-    articles = (new_articles + old_articles)[:100]
+    articles = (new_articles + old_articles)[:50]
 
     extractor = Extractor(EXTRACTOR_API_KEY)
     with futures.ThreadPoolExecutor(EXTRACTOR_CONCURRENCY_LIMIT) as executor:

@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from utils import validate
+
 
 class Extractor:
     url = "https://extractorapi.com/api/v1/extractor"
@@ -26,5 +28,5 @@ class Extractor:
             return "\n".join(
                 p.text
                 for p in bs.select("p")
-                if "extractorapi" not in p.text.lower()
+                if validate(p.text) and "extractorapi" not in p.text.lower()
             )

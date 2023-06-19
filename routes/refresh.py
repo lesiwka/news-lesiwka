@@ -44,7 +44,7 @@ def refresh():
             "https://gnews.io/api/v4/top-headlines", params=params
         ).json()
     except requests.RequestException:
-        news = {}
+        return response
 
     old_urls = [article["url"] for article in old_articles]
     new_articles = [
@@ -67,7 +67,8 @@ def refresh():
             if content_full := future.result():
                 article["content_full"] = content_full
 
-    cache.avg(len(new_articles))
-    cache.put(articles)
+    if new_articles or future_to_article:
+        cache.avg(len(new_articles))
+        cache.put(articles)
 
     return response

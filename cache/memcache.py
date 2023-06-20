@@ -35,7 +35,10 @@ def upd():
 def get():
     if raw := memcache.get(_data_key):
         return json.loads(raw)
-    return tmpcache.get()
+
+    articles = tmpcache.get()
+    memcache.set(_data_key, json.dumps(articles))
+    return articles
 
 
 def page():

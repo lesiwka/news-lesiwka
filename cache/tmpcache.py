@@ -34,9 +34,10 @@ def put(articles, renderer):
     tmp.write_text(json.dumps(articles, ensure_ascii=False))
     tmp.replace(_path)
 
-    tmp = _page.with_stem(".tmp")
-    tmp.write_text(renderer(articles))
-    tmp.replace(_page)
+    if renderer:
+        tmp = _page.with_stem(".tmp")
+        tmp.write_text(renderer(articles))
+        tmp.replace(_page)
 
 
 def stats():

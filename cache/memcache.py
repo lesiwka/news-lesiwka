@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from flask import Response
 from google.appengine.api import memcache
 
+from cache import tmpcache
 from utils import time_limit
 
 _ts_key = "ts"
@@ -34,7 +35,7 @@ def upd():
 def get():
     if raw := memcache.get(_data_key):
         return json.loads(raw)
-    return []
+    return tmpcache.get()
 
 
 def page():
@@ -50,6 +51,7 @@ def put(articles, renderer):
         }
     ):
         articles.pop()
+    tmpcache.put(articles, renderer=None)
 
 
 def stats():

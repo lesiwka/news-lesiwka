@@ -51,7 +51,7 @@ def refresh():
     now = datetime.now(tz=timezone.utc)
     old_articles = [
         article
-        for article in cache.get() or []
+        for article in cache.get()
         if now - datetime.fromisoformat(article["publishedAt"]) < timedelta(2)
     ]
 

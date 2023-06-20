@@ -22,9 +22,13 @@ _count_mark = "count_mark"
 
 
 def check(interval):
-    if (now := int(time.time())) - (memcache.get(_ts_key) or 0) > interval:
+    multi = memcache.get_multi([_ts_key, _data_key])
+    expired = (now := int(time.time())) - (multi.get(_ts_key) or 0) > interval
+
+    if expired or multi.get(_data_key) is None:
         memcache.set(_ts_key, now)
         return True
+
     return False
 
 

@@ -1,12 +1,7 @@
-from flask import request
+from flask import render_template
 
 from cache import cache
 
 
 def stats():
-    return (
-        f"<title>{request.path}</title>\n"
-        "<pre>\n"
-        + "\n".join(f"{k}: {v}" for k, v in cache.stats().items())
-        + "\n</pre>\n"
-    )
+    return render_template("stats.html", stats=cache.stats())

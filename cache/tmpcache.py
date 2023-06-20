@@ -19,7 +19,7 @@ def upd():
 
 
 def get():
-    if raw := _path.read_text():
+    if _path.exists() and (raw := _path.read_text()):
         return json.loads(raw)
     return []
 

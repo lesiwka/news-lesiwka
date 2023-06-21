@@ -75,7 +75,7 @@ def refresh():
     except requests.RequestException:
         return response
 
-    old_urls = [article["url"] for article in old_articles]
+    old_urls = {article["url"] for article in old_articles}
     new_articles = [
         article
         for article in news.get("articles", [])

@@ -25,6 +25,12 @@ def _render(articles):
         article["id"] = "article-" + article_hash.hexdigest(4)
 
         article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
+        if "content_full" in article:
+            article["content_full"] = re.sub(
+                r"^Якщо.*?помилку.*?виділіть.*?натисніть\s+Ctrl\+Enter.*?$",
+                "",
+                article["content_full"],
+            )
 
         pub = datetime.fromisoformat(article["publishedAt"]).astimezone(TZ)
         article["published"] = (

@@ -9,6 +9,12 @@ _page = Path(tempfile.gettempdir()) / "novyny.html"
 _lock = Path(tempfile.gettempdir()) / "lock.txt"
 
 
+if not _path.exists():
+    init_path = Path(_path.name)
+    init_data = init_path.read_bytes() if init_path.exists() else b""
+    _path.write_bytes(init_data)
+
+
 def check(interval):
     return _path.exists() and time.time() - _path.stat().st_mtime > interval
 

@@ -6,6 +6,7 @@ from google.appengine.api import wrap_wsgi_app
 import routes
 
 app = Flask(__name__)
+app.json.ensure_ascii = False
 app.wsgi_app = wrap_wsgi_app(app.wsgi_app)
 
 Bootstrap5(app)

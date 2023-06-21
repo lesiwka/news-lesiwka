@@ -41,7 +41,7 @@ def get():
         return json.loads(raw)
 
     articles = tmpcache.get()
-    memcache.set(_data_key, json.dumps(articles))
+    memcache.set(_data_key, json.dumps(articles, ensure_ascii=False))
     return articles
 
 

@@ -37,6 +37,6 @@
 {% endblock %}
 
 {% block scripts %}
-{{- bootstrap.load_js(with_popper=False) }}
+{{ bootstrap.load_js(with_popper=False).strip() }}
 <script src="/static/script.js"></script>
 {%- endblock %}

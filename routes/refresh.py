@@ -30,6 +30,7 @@ def _render(articles):
                 r"^Якщо.*?помилку.*?виділіть.*?натисніть\s+Ctrl\+Enter.*?$",
                 "",
                 article["content_full"],
+                flags=re.MULTILINE,
             )
 
         pub = datetime.fromisoformat(article["publishedAt"]).astimezone(TZ)

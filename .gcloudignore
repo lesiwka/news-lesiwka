@@ -7,3 +7,4 @@ cron.yaml
 deploy.sh
 env_variables.yaml.sample
 pyproject.toml
+README.md

@@ -2,7 +2,7 @@ import hashlib
 import os
 import re
 from concurrent import futures
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 import requests
 from dateutil import tz
@@ -55,13 +55,6 @@ def refresh():
     if not cache.check(interval=GNEWS_INTERVAL):
         return response
 
-    now = datetime.now(tz=timezone.utc)
-    old_articles = [
-        article
-        for article in cache.get()
-        if now - datetime.fromisoformat(article["publishedAt"]) < timedelta(2)
-    ]
-
     params = dict(
         apikey=GNEWS_API_KEY,
         country="ua",
@@ -74,6 +67,8 @@ def refresh():
         ).json()
     except requests.RequestException:
         return response
+
+    old_articles = cache.get()
 
     old_urls = {article["url"] for article in old_articles}
     new_articles = [

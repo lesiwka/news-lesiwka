@@ -1,3 +1,6 @@
+import itertools
+import random
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -8,13 +11,13 @@ class Extractor:
     url = "https://extractorapi.com/api/v1/extractor"
     _field = "clean_html"
 
-    def __init__(self, apikey):
-        self._apikey = apikey
+    def __init__(self, apikeys):
+        self._apikeys = itertools.cycle(random.sample(apikeys, len(apikeys)))
         self._session = requests.Session()
 
     def extract(self, url):
         params = dict(
-            apikey=self._apikey,
+            apikey=next(self._apikeys),
             fields=self._field,
             url=url,
         )

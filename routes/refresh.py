@@ -14,7 +14,7 @@ from utils import validate
 
 GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
 GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
-EXTRACTOR_API_KEY = os.environ["EXTRACTOR_API_KEY"]
+EXTRACTOR_API_KEYS = os.environ["EXTRACTOR_API_KEYS"].split(",")
 EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 TZ = tz.gettz("Europe/Kiev")
 
@@ -83,7 +83,7 @@ def refresh():
 
     articles = (new_articles + old_articles)[:50]
 
-    extractor = Extractor(EXTRACTOR_API_KEY)
+    extractor = Extractor(EXTRACTOR_API_KEYS)
     with futures.ThreadPoolExecutor(EXTRACTOR_CONCURRENCY_LIMIT) as executor:
         future_to_article = {
             executor.submit(extractor.extract, article["url"]): article

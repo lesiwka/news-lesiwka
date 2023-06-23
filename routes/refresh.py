@@ -74,7 +74,11 @@ def refresh():
     new_articles = [
         article
         for article in news.get("articles", [])
-        if validate(article["title"]) and article["url"] not in old_urls
+        if validate(article["title"])
+        and article["url"] not in old_urls
+        and not re.match(
+            r"(астролог|гороскоп)", article["title"], flags=re.IGNORECASE
+        )
     ]
 
     articles = (new_articles + old_articles)[:50]

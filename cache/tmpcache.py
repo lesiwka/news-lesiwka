@@ -5,8 +5,8 @@ from pathlib import Path
 
 
 _path = Path(tempfile.gettempdir()) / "articles.json"
-_page = Path(tempfile.gettempdir()) / "novyny.html"
-_lock = Path(tempfile.gettempdir()) / "lock.txt"
+_page = Path(tempfile.gettempdir()) / "index.html"
+_lock = Path(tempfile.gettempdir()) / "refresh.lock"
 
 
 if not _path.exists():
@@ -50,26 +50,16 @@ def stats():
     try:
         st = _path.stat()
     except FileNotFoundError:
-        return dict(ts=None, upd=None, count=None, size=None, avg=None)
+        return dict(ts=None, upd=None, count=None, size=None)
 
     try:
-        data_len = len(json.loads(_path.read_text()))
+        count = len(json.loads(_path.read_text()))
     except (TypeError, json.JSONDecodeError):
-        data_len = None
+        count = None
 
     mtime = int(st.st_mtime)
-    return dict(
-        ts=mtime,
-        upd=mtime,
-        count=data_len,
-        size=st.st_size,
-        avg=None,
-    )
+    return dict(ts=mtime, upd=mtime, count=count, size=st.st_size)
 
 
 def lock(f):
     return f
-
-
-def avg(diff):
-    pass

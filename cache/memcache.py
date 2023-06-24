@@ -1,8 +1,6 @@
 import http
 import json
-import math
 import time
-from datetime import datetime, timedelta
 
 from flask import Response
 from google.appengine.api import memcache
@@ -16,9 +14,6 @@ _data_key = "data"
 _page_key = "page"
 _lock_key = "lock"
 _lock_time = 300
-_count_avg = "count_avg"
-_count_cur = "count_cur"
-_count_mark = "count_mark"
 
 
 def check(interval):
@@ -62,13 +57,10 @@ def put(articles, renderer):
 
 
 def stats():
-    multi = memcache.get_multi(
-        [_ts_key, _upd_key, _data_key, _count_avg, _count_cur]
-    )
+    multi = memcache.get_multi([_ts_key, _upd_key, _data_key])
     ts = multi.get(_ts_key)
     upd_ = multi.get(_upd_key)
     raw = multi.get(_data_key)
-    avg_ = multi.get(_count_avg) or multi.get(_count_cur)
 
     try:
         count = len(json.loads(raw))
@@ -79,7 +71,7 @@ def stats():
     except AttributeError:
         size = None
 
-    return dict(ts=ts, upd=upd_, count=count, size=size, avg=avg_)
+    return dict(ts=ts, upd=upd_, count=count, size=size)
 
 
 def lock(f):
@@ -97,24 +89,3 @@ def lock(f):
             memcache.delete(_lock_key)
 
     return wrapper
-
-
-def avg(diff):
-    now = datetime.now()
-
-    if memcache.get(_count_cur) is not None:
-        memcache.incr(_count_cur, diff)
-
-        multi = memcache.get_multi([_count_avg, _count_cur, _count_mark])
-        if multi.get(_count_mark) is None:
-            cur = multi[_count_cur]
-            avg_ = multi.get(_count_avg, -cur) or cur
-            memcache.set_multi({_count_avg: (avg_ + cur) // 2, _count_cur: 0})
-        else:
-            return
-    else:
-        memcache.set(_count_cur, diff)
-
-    tomorrow = datetime.combine(now.date(), now.min.time()) + timedelta(1)
-    timeout = math.ceil((tomorrow - now).total_seconds())
-    memcache.set(_count_mark, int(now.timestamp()), time=timeout)

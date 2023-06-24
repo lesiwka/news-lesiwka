@@ -95,8 +95,6 @@ def refresh():
             if content_full := future.result():
                 article["content_full"] = content_full
 
-    if new_articles:
-        cache.avg(len(new_articles))
     if new_articles or future_to_article or not cache.page():
         cache.put(articles, _render)
 

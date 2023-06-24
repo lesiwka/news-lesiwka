@@ -23,7 +23,7 @@
                 {%- for line in article.content_full.splitlines() %}
                 <p>{{ line | lesiwka }}</p>
                 {%- endfor %}
-                <p><a href="{{ article.url }}" target="_blank">{{ article.source_domain }}</a></p>
+                <p><a href="{{ article.url }}" target="_blank" rel="noopener norefferer">{{ article.source_domain }}</a></p>
                 {%- else %}
                 {%- for line in article.content.splitlines() %}
                 <p>{{ line | lesiwka }}{% if loop.last %} <a href="{{ article.url }}" target="_blank">{{ article.source_domain }}</a>{% endif %}</p>

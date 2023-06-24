@@ -16,7 +16,9 @@ if not _path.exists():
 
 
 def check(interval):
-    return _path.exists() and time.time() - _path.stat().st_mtime > interval
+    if _path.exists():
+        return time.time() - _path.stat().st_mtime > interval
+    return True
 
 
 def upd():

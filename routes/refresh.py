@@ -77,7 +77,9 @@ def refresh():
         if validate(article["title"])
         and article["url"] not in old_urls
         and not re.match(
-            r"(астролог|гороскоп)", article["title"], flags=re.IGNORECASE
+            r"(астролог|гороскоп|знак.+?зодіак)",
+            article["title"],
+            flags=re.IGNORECASE,
         )
     ]
 

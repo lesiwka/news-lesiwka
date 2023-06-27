@@ -3,6 +3,7 @@
 {% block content %}
 <div id="news" class="accordion accordion-flush">
 {%- for article in articles %}
+    {%- set description = article.description | lesiwka %}
     <div class="accordion-item">
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ article.id }}" aria-expanded="false" aria-controls="{{ article.id }}">
@@ -11,13 +12,14 @@
                     <b>{{ article.title | lesiwka }}</b>
                     <span class="d-none d-md-block w40">
                         <br>
-                        {{ article.description | lesiwka }}
+                        {{ description }}
                     </span>
                 </span>
             </button>
         </h2>
         <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">
             <div class="accordion-body">
+                <p class="d-md-none">{{ description }}</p>
                 <p class="text-muted"><i>{{ article.published }}</i></p>
                 {%- if article.content_full %}
                 {%- for line in article.content_full.splitlines() %}

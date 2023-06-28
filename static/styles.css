@@ -16,6 +16,10 @@ body {
     font-family: "Noto Sans", sans-serif;
 }
 
+.description {
+    width: 95%;
+}
+
 .footer {
     position: absolute;
     bottom: 0;
@@ -34,8 +38,4 @@ body {
 .main {
     padding-bottom: 1.5rem;
     padding-top: 60px;
-}
-
-.w40 {
-    width: 40vw;
 }

@@ -26,6 +26,7 @@ body {
     height: 20vh;
     margin-right: 1rem;
     max-height: 20vw;
+    min-width: 20vw;
     object-fit: cover;
     width: 20vw;
 }

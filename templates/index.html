@@ -19,7 +19,7 @@
         </h2>
         <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">
             <div class="accordion-body">
-                <p class="d-md-none border p-2">{{ description }}</p>
+                <p class="d-md-none border rounded p-2">{{ description }}</p>
                 <p class="text-muted"><i>{{ article.published }}</i></p>
                 {%- if article.content_full %}
                 {%- for line in article.content_full.splitlines() %}

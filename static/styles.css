@@ -32,7 +32,22 @@ body {
     max-height: 20vw;
     min-width: 20vw;
     object-fit: cover;
+    position: relative;
     width: 20vw;
+}
+
+.image::after {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    content: " ";
+    background-image: url("/static/img-placeholder.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 .main {

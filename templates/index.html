@@ -10,16 +10,20 @@
                 <img class="image" src="{{ article.image }}" alt="{{ article.title }}" referrerpolicy="no-referrer">
                 <span>
                     <b>{{ article.title | lesiwka }}</b>
+                    {%- if description  %}
                     <span class="d-none d-md-block description">
                         <br>
                         {{ description }}
                     </span>
+                    {%- endif %}
                 </span>
             </button>
         </h2>
         <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">
             <div class="accordion-body">
+                {%- if description %}
                 <p class="d-md-none border rounded p-2">{{ description }}</p>
+                {%- endif  %}
                 <p class="text-muted"><i>{{ article.published }}</i></p>
                 {%- if article.content_full %}
                 {%- for line in article.content_full.splitlines() %}

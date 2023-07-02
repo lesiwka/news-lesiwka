@@ -9,10 +9,8 @@ _page = Path(tempfile.gettempdir()) / "index.html"
 _lock = Path(tempfile.gettempdir()) / "refresh.lock"
 
 
-if not _path.exists():
-    init_path = Path(_path.name)
-    init_data = init_path.read_bytes() if init_path.exists() else b""
-    _path.write_bytes(init_data)
+if not _path.exists() and (_init_path := Path(_path.name)).exists():
+    _path.write_bytes(_init_path.read_bytes())
 
 
 def check(interval):

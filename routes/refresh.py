@@ -24,7 +24,14 @@ def _render(articles):
         article_hash = hashlib.shake_256(article["url"].encode())
         article["id"] = "article-" + article_hash.hexdigest(4)
 
-        if not validate(article["description"]):
+        if validate(desc := article["description"]):
+            content = article.get("content_full", article["content"])
+            content = re.escape(content[: len(desc) // 4])
+            title = article["title"]
+            title = re.escape(title[: len(title) // 2])
+            pattern = rf"({content}|{title}).*"
+            article["description"] = re.sub(pattern, "", desc).rstrip(" .")
+        else:
             article["description"] = ""
 
         article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])

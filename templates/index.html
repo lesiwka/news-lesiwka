@@ -8,7 +8,7 @@
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ article.id }}" aria-expanded="false" aria-controls="{{ article.id }}">
                 <img class="image" src="{{ article.image }}" alt="{{ article.title }}" referrerpolicy="no-referrer">
-                <span>
+                <div class="w-100">
                     <b>{{ article.title | lesiwka }}</b>
                     {%- if description  %}
                     <span class="d-none d-md-block description">
@@ -16,7 +16,7 @@
                         {{ description }}
                     </span>
                     {%- endif %}
-                </span>
+                </div>
             </button>
         </h2>
         <div id="{{ article.id }}" class="accordion-collapse collapse" data-bs-parent="#news">

@@ -26,10 +26,7 @@ def _render(articles):
 
         if validate(desc := article["description"]):
             content = article.get("content_full", article["content"])
-            content = re.escape(content[: len(desc) // 4])
-            title = article["title"]
-            title = re.escape(title[: len(title) // 2])
-            pattern = rf"({content}|{title}).*"
+            pattern = re.escape(content[: len(desc) // 4]) + r".*"
             article["description"] = re.sub(pattern, "", desc).rstrip(" .")
         else:
             article["description"] = ""

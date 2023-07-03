@@ -85,7 +85,7 @@ def refresh():
         for article in news.get("articles", [])
         if validate(article["title"])
         and article["url"] not in old_urls
-        and not re.match(
+        and not re.search(
             r"(астролог|гороскоп|знак.+?зодіак)",
             article["title"],
             flags=re.IGNORECASE,

@@ -24,8 +24,9 @@ def _render(articles):
         article_hash = hashlib.shake_256(article["url"].encode())
         article["id"] = "article-" + article_hash.hexdigest(4)
 
+        semititle = (title := article["title"])[: len(title) // 2]
         if validate(desc := article["description"]) and not desc.startswith(
-            (title := article["title"])[: len(title) // 2]
+            semititle
         ):
             content = article.get("content_full", article["content"])
             pattern = re.escape(content[: len(desc) // 4]) + r".*"
@@ -45,6 +46,13 @@ def _render(articles):
                 article["content_full"],
                 flags=re.MULTILINE,
             )
+            if not article["description"]:
+                pattern = re.compile(r".+?([^.]|\.\.\.)$", flags=re.MULTILINE)
+                if match := pattern.match(content := article["content_full"]):
+                    desc = article["description"] = match.group(0)
+                    article["content_full"] = pattern.sub("", content)
+                if desc.startswith(semititle):
+                    article["description"] = ""
 
         pub = datetime.fromisoformat(article["publishedAt"]).astimezone(TZ)
         article["published"] = (

@@ -36,7 +36,8 @@ def _render(articles):
         article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
         if "content_full" in article:
             article["content_full"] = re.sub(
-                r"^Якщо.*?помилку.*?виділіть.*?натисніть\s+Ctrl\+Enter.*?$",
+                r"^(Якщо.*?помилку.*?виділіть.*?натисніть\s+Ctrl\+Enter.*?"
+                r"|Будь\s+ласка,\s+читайте\s+текст\s+після\s+реклами)$",
                 "",
                 article["content_full"],
                 flags=re.MULTILINE,

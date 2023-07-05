@@ -25,35 +25,39 @@ def _render(articles):
         article_hash = hashlib.shake_256(article["url"].encode())
         article["id"] = "article-" + article_hash.hexdigest(4)
 
-        semititle = (title := article["title"])[: len(title) // 2]
-        if validate(desc := article["description"]) and not desc.startswith(
-            semititle
-        ):
-            content = article.get("content_full", article["content"])
-            pattern = re.escape(content[: len(desc) // 4]) + r".*"
-            article["description"] = re.sub(pattern, "", desc).rstrip(" .")
-        else:
-            article["description"] = ""
-
         article["content"] = re.sub(r"\[\d+ chars]$", "", article["content"])
-        if "content_full" in article:
-            article["content_full"] = re.sub(
+        if content := article.get("content_full"):
+            content = re.sub(
                 r"^("
                 r"|Якщо.*?помилку.*?виділіть.*?натисніть\s+Ctrl\+Enter.*?"
                 r"|Будь\s+ласка,\s+читайте\s+текст\s+після\s+реклами"
                 r"|.*?використ\w+?\s+файл\w*?\s+cookie.*"
-                r")$",
+                r"|http(?:s)?://\S+"
+                r")\n",
                 "",
-                article["content_full"],
+                content,
                 flags=re.MULTILINE,
             )
+
+            semititle = (title := article["title"])[: len(title) // 2]
+            if validate(
+                desc := article["description"]
+            ) and not desc.startswith(semititle):
+                pat = re.escape(content[: len(desc) // 4]) + r".*"
+                desc = re.sub(pat, "", desc).rstrip(" .")
+            else:
+                desc = ""
+
             if not article["description"]:
-                pattern = re.compile(r".+?([^.]|\.\.\.)$", flags=re.MULTILINE)
-                if match := pattern.match(content := article["content_full"]):
-                    desc = article["description"] = match.group(0)
-                    article["content_full"] = pattern.sub("", content)
+                pat = re.compile(r".+?(?:[^.]|\.\.\.)$", flags=re.MULTILINE)
+                if match := pat.match(content):
+                    desc = match.group(0)
+                    content = pat.sub("", content)
                 if desc.startswith(semititle):
-                    article["description"] = ""
+                    desc = ""
+
+            article["content_full"] = content
+            article["description"] = desc
 
         pub = datetime.fromisoformat(article["publishedAt"]).astimezone(TZ)
         article["published"] = (

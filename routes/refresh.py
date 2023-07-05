@@ -33,7 +33,7 @@ def _render(articles):
                 r"|Будь\s+ласка,\s+читайте\s+текст\s+після\s+реклами"
                 r"|.*?використ\w+?\s+файл\w*?\s+cookie.*"
                 r"|http(?:s)?://\S+"
-                r")\n",
+                r")(?:\n|$)",
                 "",
                 content,
                 flags=re.MULTILINE,

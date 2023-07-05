@@ -1,6 +1,7 @@
 import json
 import tempfile
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -20,8 +21,9 @@ def check(interval):
 
 
 def upd():
-    if _path.exists():
-        return int(_path.stat().st_mtime)
+    return datetime.fromtimestamp(
+        int(_path.stat().st_mtime) if _path.exists() else 0, tz=timezone.utc
+    )
 
 
 def get():

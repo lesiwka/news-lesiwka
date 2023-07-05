@@ -10,6 +10,7 @@ from flask import Response, redirect, render_template, request
 
 from cache import cache
 from extractor import Extractor
+from routes import START_TIME
 from utils import validate
 
 GNEWS_API_KEY = os.environ["GNEWS_API_KEY"]
@@ -73,6 +74,12 @@ def refresh():
         else redirect("/")
     )
 
+    old_articles = cache.get()
+
+    if cache.upd() < START_TIME:
+        cache.put(old_articles, _render)
+        return response
+
     if not cache.check(interval=GNEWS_INTERVAL):
         return response
 
@@ -88,8 +95,6 @@ def refresh():
         ).json()
     except requests.RequestException:
         return response
-
-    old_articles = cache.get()
 
     old_urls = {article["url"] for article in old_articles}
     new_articles = [

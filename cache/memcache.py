@@ -1,6 +1,7 @@
 import http
 import json
 import time
+from datetime import datetime, timezone
 
 from flask import Response
 from google.appengine.api import memcache
@@ -28,7 +29,7 @@ def check(interval):
 
 
 def upd():
-    return memcache.get(_upd_key)
+    return datetime.fromtimestamp(memcache.get(_upd_key) or 0, tz=timezone.utc)
 
 
 def get():

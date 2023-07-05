@@ -2,6 +2,6 @@ appengine-python-standard==1.1.2
 flask==2.3.2
 beautifulsoup4==4.12.2
 bootstrap-flask==2.2.0
-lesiwka==2.1.20230620.0
+lesiwka==2.1.20230705.0
 requests==2.31.0
 python-dateutil==2.8.2

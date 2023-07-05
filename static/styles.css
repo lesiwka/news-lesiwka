@@ -27,27 +27,36 @@ body {
 }
 
 .image {
+    display: flex;
     height: 20vh;
     margin-right: 1rem;
     max-height: 20vw;
     min-width: 20vw;
-    object-fit: cover;
-    position: relative;
     width: 20vw;
 }
 
-.image::after {
+.image img {
+    object-fit: cover;
+    position: relative;
+}
+
+.image img::after {
     display: block;
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
-    width: 100%;
     content: " ";
+}
+
+.image, .image img::after {
     background-image: url("/static/img-placeholder.jpg");
     background-position: center;
-    background-repeat: no-repeat;
     background-size: cover;
+}
+
+.image img, .image img::after {
+    height: 100%;
+    width: 100%;
 }
 
 .main {

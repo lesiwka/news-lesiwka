@@ -7,7 +7,9 @@
     <div class="accordion-item">
         <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{ article.id }}" aria-expanded="false" aria-controls="{{ article.id }}">
-                <img class="image" src="{{ article.image }}" alt="{{ article.title }}" referrerpolicy="no-referrer">
+                <div class="image">
+                    <img src="{{ article.image }}" alt="{{ article.title }}" referrerpolicy="no-referrer">
+                </div>
                 <div class="w-100">
                     <b>{{ article.title | lesiwka }}</b>
                     {%- if description  %}

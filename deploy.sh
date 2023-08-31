@@ -1,5 +1,6 @@
 #!/bin/bash
 
+gcloud beta app repair
 wget https://novyny.lesiwka.com/_data -O articles.json
 gcloud app deploy app.yaml --version current
 # shellcheck disable=SC2046

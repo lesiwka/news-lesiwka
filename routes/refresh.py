@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import re
 from concurrent import futures
@@ -18,6 +19,8 @@ GNEWS_INTERVAL = int(os.getenv("GNEWS_INTERVAL", 900))
 EXTRACTOR_API_KEYS = os.environ["EXTRACTOR_API_KEYS"].split(",")
 EXTRACTOR_CONCURRENCY_LIMIT = int(os.getenv("EXTRACTOR_CONCURRENCY_LIMIT", 1))
 TZ = tz.gettz("Europe/Kiev")
+
+logger = logging.getLogger(__name__)
 
 
 def _render(articles):
@@ -95,11 +98,18 @@ def refresh():
         lang="uk",
     )
     try:
-        news = requests.get(
+        res = requests.get(
             "https://gnews.io/api/v4/top-headlines", params=params
-        ).json()
-    except requests.RequestException:
+        )
+    except requests.RequestException as e:
+        logger.error("News fetching failure: %s", e)
         return response
+
+    if res.status_code != 200:
+        logger.error("News fetching error: %s %s", res.status_code, res.text)
+        return response
+
+    news = res.json()
 
     old_urls = {article["url"] for article in old_articles}
     new_articles = [

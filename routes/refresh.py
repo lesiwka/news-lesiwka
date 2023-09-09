@@ -39,7 +39,7 @@ def _render(articles):
                 r"|(.+)(\n+\2)+"
                 r")(?:\n|$)",
                 "",
-                content,
+                content.strip(),
                 flags=re.MULTILINE,
             )
 

@@ -27,6 +27,7 @@
 
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('css') }}">
 
     <script>history.scrollRestoration = "manual"</script>
     {%- block meta %}{% endblock %}
@@ -69,7 +70,10 @@
 
 <footer class="bg-success footer">
     <div class="container text-center">
-        <a class="text-dark" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>
+        <div class="row align-items-center">
+            <a class="non-app-hide col-6 text-dark" href="{{ url_for('contact') }}">&#9993 зворотній зв'язок</a>
+            <a class="non-app-w100 col-6 text-dark" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>
+        </div>
     </div>
 </footer>
 {%- block scripts %}{% endblock %}

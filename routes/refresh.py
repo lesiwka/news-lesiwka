@@ -60,6 +60,12 @@ def _render(articles):
                 if desc.startswith(semititle):
                     desc = ""
 
+            if not desc and content.count("\n") > 0:
+                desc_, content_ = content.split("\n", maxsplit=1)
+                desc_ = desc_.rstrip(" .")
+                if len(content_) > len(desc_):
+                    desc, content = desc_, content_
+
             article["content_full"] = content
             article["description"] = desc
 

@@ -70,9 +70,13 @@
 
 <footer class="bg-success footer">
     <div class="container text-center">
-        <div class="row align-items-center">
-            <a class="non-app-hide col-6 text-dark" href="{{ url_for('contact') }}">&#9993 зворотній зв'язок</a>
-            <a class="non-app-w100 col-6 text-dark" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>
+        <div class="row">
+            <div class="col-6 non-app-hide">
+                <a class="link-body-emphasis" href="{{ url_for('contact') }}">&#9993 зворотній зв'язок</a>
+            </div>
+            <div class="col-6 non-app-w100">
+                <a class="link-body-emphasis" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>
+            </div>
         </div>
     </div>
 </footer>

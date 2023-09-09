@@ -63,6 +63,13 @@ def _render(articles):
             if not desc and content.count("\n") > 0:
                 desc_, content_ = content.split("\n", maxsplit=1)
                 desc_ = desc_.rstrip(" .")
+                if len(desc_) > 300:
+                    pat = re.compile(r"\.\s")
+                    if pat.search(desc_):
+                        desc_, _ = pat.split(desc_, maxsplit=1)
+                    else:
+                        desc_ = ""
+                    content_ = content
                 if len(content_) > len(desc_):
                     desc, content = desc_, content_
 

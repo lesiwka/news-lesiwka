@@ -73,6 +73,9 @@ def _render(articles):
                 if len(content_) > len(desc_):
                     desc, content = desc_, content_
 
+            if desc == title and article["description"]:
+                desc = article["description"]
+
             article["content_full"] = content
             article["description"] = desc
 

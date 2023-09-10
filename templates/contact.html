@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="modal position-static d-block">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Зворотній зв'язок</h5>
+      </div>
+      <div class="modal-body">
+        <p>Контакт: <a href="mailto:{{ contact }}" target="_blank">{{ contact }}</a></p>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-secondary" href="/">Закрити</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

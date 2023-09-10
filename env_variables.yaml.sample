@@ -1,5 +1,5 @@
 env_variables:
-  CONTACT: mailto:<e-mail>
+  CONTACT: <e-mail>
   GNEWS_API_KEY: <gnews-api-key>
   GNEWS_INTERVAL: 900
   EXTRACTOR_API_KEYS: <extractor-api-keys-comma-separated-list>

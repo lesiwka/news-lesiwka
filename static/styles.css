@@ -64,3 +64,8 @@ body {
     padding-bottom: 1.5rem;
     padding-top: 60px;
 }
+
+.gplay {
+    margin: -8px;
+    max-height: 56px;
+}

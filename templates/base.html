@@ -59,7 +59,8 @@
             <div class="navbar-brand font-weight-bold font-monospace">
                 <a class="text-decoration-none" href="/" title="{{ description }}">{{ title }}</a>
             </div>
-            <div class="d-none d-md-block mx-auto text-light fst-italic">{{ description }}</div>
+            {%- set description_split, lesiwka_url = description.split(), "https://lesiwka.com" -%}
+            <div class="d-none d-md-block mx-auto text-light fst-italic">{{ ' '.join(description_split[:-2]) }} <a href="{{ lesiwka_url }}" target="_blank">{{ " ".join(description_split[-2:]) }}</a></div>
             <div class="app-hide">
                 <a href="https://play.google.com/store/apps/details?id=com.lesiwka.novyny" target="_blank"><img alt="Завантажити з Google Play" class="gplay" src="https://play.google.com/intl/en_us/badges/static/images/badges/ua_badge_web_generic.png"/></a>
             </div>
@@ -78,7 +79,7 @@
                 <a class="link-body-emphasis" href="{{ url_for('contact') }}">&#9993 зворотній зв'язок</a>
             </div>
             <div class="col-6 non-app-w100">
-                <a class="link-body-emphasis" href="https://lesiwka.com" target="_blank">&copy; 2023 lesiwka.com</a>
+                <a class="link-body-emphasis" href="{{ lesiwka_url }}" target="_blank">&copy; 2023 lesiwka.com</a>
             </div>
         </div>
     </div>

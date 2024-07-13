@@ -135,7 +135,11 @@ def refresh():
         and article["url"] not in old_urls
         and not any(
             re.search(
-                r"(астролог|гороскоп|знак.+?зодіак|езотери[кч])",
+                r"("
+                r"астролог|гороскоп|знак.+?зодіак|езотери[кч]"
+                r"|"
+                r"hamster\s+kombat|хамстер"
+                r")",
                 article.get(section, ""),
                 flags=re.IGNORECASE,
             )

@@ -6,7 +6,7 @@ CONTACT = os.environ["CONTACT"]
 
 
 def contact():
-    if not request.user_agent.string.startswith("NovynyApp/"):
-        return redirect("/")
+    # if not request.user_agent.string.startswith("NovynyApp/"):
+    #     return redirect("/")
 
     return make_response(render_template("contact.html", contact=CONTACT))
